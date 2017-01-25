@@ -190,6 +190,10 @@ sub-env $BIN_DIR/steps/geo-libs
 # GDAL support.
 source $BIN_DIR/steps/gdal
 
+# HACK: makes sure numpy is in place before installing other dependencies
+# Maybe make this triggered by a .numpy file in the repo? (similar to python-runtime.txt)
+pip install numpy==1.10.2
+
 # Install dependencies with Pip (where the magic happens).
 source $BIN_DIR/steps/pip-install
 
