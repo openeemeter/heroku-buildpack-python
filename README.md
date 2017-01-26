@@ -1,3 +1,9 @@
+# ** Open EE Meter Fork ***
+
+The fork allows installs numpy before installing pip requirements in order to be able to install the `statsmodels`, which fails without an existing numpy install. The numpy install is triggered by a file `pre-requirements.txt`. This file has the same format as a pip requirements file. 
+
+An IFTTT recipe is set up to alert us when the upstream repo has changes for merging.
+
 ![python](https://cloud.githubusercontent.com/assets/51578/13712821/b68a42ce-e793-11e5-96b0-d8eb978137ba.png)
 
 # Heroku Buildpack: Python
