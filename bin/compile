@@ -27,10 +27,7 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-# Static configurations for virtualenv caches.
-VIRTUALENV_LOC=".heroku/venv"
-LEGACY_TRIGGER="lib/python2.7"
-
+# Python defaults
 DEFAULT_PYTHON_VERSION="python-2.7.13"
 DEFAULT_PYTHON_STACK="cedar-14"
 PYTHON_EXE="/app/.heroku/python/bin/python"
@@ -130,12 +127,6 @@ fi
 # Prepare the cache.
 mkdir -p $CACHE_DIR
 
-# Purge "old-style" virtualenvs.
-bpwatch start clear_old_venvs
-  [ -d $CACHE_DIR/$LEGACY_TRIGGER ] && rm -fr $CACHE_DIR/.heroku/bin $CACHE_DIR/.heroku/lib $CACHE_DIR/.heroku/include
-  [ -d $CACHE_DIR/$VIRTUALENV_LOC ] && rm -fr $CACHE_DIR/.heroku/venv $CACHE_DIR/.heroku/src
-bpwatch stop clear_old_venvs
-
 # Restore old artifacts from the cache.
 bpwatch start restore_cache
     mkdir -p .heroku
@@ -144,7 +135,6 @@ bpwatch start restore_cache
     cp -R $CACHE_DIR/.heroku/python-stack .heroku/ &> /dev/null || true
     cp -R $CACHE_DIR/.heroku/python-version .heroku/ &> /dev/null || true
     cp -R $CACHE_DIR/.heroku/vendor .heroku/ &> /dev/null || true
-    cp -R $CACHE_DIR/.heroku/venv .heroku/ &> /dev/null || true
     if [[ -d $CACHE_DIR/.heroku/src ]]; then
       cp -R $CACHE_DIR/.heroku/src .heroku/ &> /dev/null || true
     fi
@@ -159,7 +149,6 @@ if [[ $BUILD_DIR != '/app' ]]; then
     # we will not remove these later so subsequent buildpacks can still invoke it
     ln -nsf $BUILD_DIR/.heroku/python /app/.heroku/python
     ln -nsf $BUILD_DIR/.heroku/vendor /app/.heroku/vendor
-    ln -nsf $BUILD_DIR/.heroku/venv /app/.heroku/venv
     # Note: .heroku/src is copied in later.
 fi
 
@@ -173,12 +162,12 @@ source $BIN_DIR/steps/setuptools
 source $BIN_DIR/steps/pipenv
 
 # If no requirements.txt file given, assume `setup.py develop` is intended.
-if [ ! -f requirements.txt ]; then
+if [ ! -f requirements.txt ] && [ ! -f Pipfile ]; then
   echo "-e ." > requirements.txt
 fi
 
-# Uninstall removed dependencies with Pip.
-source $BIN_DIR/steps/pip-uninstall
+# Fix egg-links.
+source $BIN_DIR/steps/eggpath-fix
 
 # Mercurial support.
 source $BIN_DIR/steps/mercurial
@@ -203,6 +192,9 @@ fi
 
 # Install dependencies with Pip (where the magic happens).
 source $BIN_DIR/steps/pip-install
+
+# Uninstall removed dependencies with Pip.
+source $BIN_DIR/steps/pip-uninstall
 
 # Support for NLTK corpora.
 sub-env $BIN_DIR/steps/nltk
@@ -232,15 +224,8 @@ bpwatch start post_compile
   source $BIN_DIR/steps/hooks/post_compile
 bpwatch stop post_compile
 
-set +e
-# rewrite build dir in egg links to /app so things are found at runtime
-find .heroku/python/lib/python*/site-packages/ -name "*.pth" -print0 2> /dev/null | xargs -r -0 -n 1 sed -i -e "s#$(pwd)#/app#" &> /dev/null
-set -e
-
-set +e
-# Support for PyPy
-find .heroku/python/lib-python/*/site-packages/  -name "*.pth" -print0 2> /dev/null | xargs -r -0 -n 1 sed -i -e "s#$(pwd)#/app#" &> /dev/null
-set -e
+# Fix egg-links, again.
+source $BIN_DIR/steps/eggpath-fix2
 
 # Store new artifacts in cache.
 bpwatch start dump_cache
@@ -249,7 +234,6 @@ bpwatch start dump_cache
   rm -rf $CACHE_DIR/.heroku/python-version
   rm -rf $CACHE_DIR/.heroku/python-stack
   rm -rf $CACHE_DIR/.heroku/vendor
-  rm -rf $CACHE_DIR/.heroku/venv
   rm -rf $CACHE_DIR/.heroku/src
 
   mkdir -p $CACHE_DIR/.heroku
@@ -257,7 +241,6 @@ bpwatch start dump_cache
   cp -R .heroku/python-version $CACHE_DIR/.heroku/
   cp -R .heroku/python-stack $CACHE_DIR/.heroku/ &> /dev/null || true
   cp -R .heroku/vendor $CACHE_DIR/.heroku/ &> /dev/null || true
-  cp -R .heroku/venv $CACHE_DIR/.heroku/ &> /dev/null || true
   if [[ -d .heroku/src ]]; then
     cp -R .heroku/src $CACHE_DIR/.heroku/ &> /dev/null || true
   fi
