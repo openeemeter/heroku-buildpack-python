@@ -14,7 +14,7 @@ This is the official [Heroku buildpack](https://devcenter.heroku.com/articles/bu
 
 Recommended web frameworks include **Django** and **Flask**. The recommended webserver is **Gunicorn**. There are no restrictions around what software can be used (as long as it's pip-installable). Web processes must bind to `$PORT`, and only the HTTP protocol is permitted for incoming connections.
 
-Some Python packages with obscure C dependencies (e.g. scipy) are [not compatible](https://devcenter.heroku.com/articles/python-c-deps). 
+Some Python packages with obscure C dependencies (e.g. scipy) are [not compatible](https://devcenter.heroku.com/articles/python-c-deps).
 
 See it in Action
 ----------------
@@ -35,7 +35,7 @@ Deploying a Python application couldn't be easier:
              Downloading requests-2.12.4-py2.py3-none-any.whl (576KB)
            Installing collected packages: requests
            Successfully installed requests-2.12.4
-           
+
     -----> Discovering process types
            Procfile declares types -> (none)
 
@@ -52,11 +52,11 @@ Specify a Python Runtime
 Specific versions of the Python runtime can be specified with a `runtime.txt` file:
 
     $ cat runtime.txt
-    python-3.6.0
+    python-3.6.1
 
 Runtime options include:
 
 - `python-2.7.13`
-- `python-3.6.0`
-- `pypy-5.6.0` (unsupported, experimental)
+- `python-3.6.1`
+- `pypy-5.7.0` (unsupported, experimental)
 - `pypy3-5.5.0` (unsupported, experimental)
