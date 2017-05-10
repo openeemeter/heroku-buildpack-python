@@ -1,4 +1,4 @@
-puts-cmd "pip install -r pre-requirements.txt"
+puts-step "pip install -r pre-requirements.txt"
 
 set +e
 /app/.heroku/python/bin/pip install -r $BUILD_DIR/pre-requirements.txt --exists-action=w --src=/app/.heroku/src --disable-pip-version-check --no-cache-dir 2>&1 | tee $WARNINGS_LOG | cleanup | indent
