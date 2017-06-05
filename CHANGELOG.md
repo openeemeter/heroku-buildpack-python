@@ -1,5 +1,45 @@
 # Python Buildpack Changelog
 
+# 108
+
+Updated setuptools.
+
+# 107
+
+Bugfix for C dependency installation.
+
+# 106
+
+ Don't install packages that could mess up packaging.
+
+ - The Python buildpack will automatically remove `six`, `pyparsing`, `appdirs`,
+   `setuptools`, and `distribute` from a `requirements.txt` file now, as these
+   packages are provided by the Python buildpack.
+
+ # 105
+
+ Improvements to output messaging.
+
+# 104
+
+General improvements.
+
+- Fix for Heroku CI.
+- Use `pkg_resources` to check if a distribution is installed instead of
+  parsing `requirements.txt`. ([#395][395])
+
+[395]: https://github.com/heroku/heroku-buildpack-python/pull/395
+
+## 103
+
+Bug fixes and improvements.
+
+- Fix for Pipenv.
+- Fix for Heroku CI.
+- Improve handling of WEB_CONCURRENCY when using multiple buildpacks.
+- Adjust environment variables set during the build to more closely match those in the dyno environment (DYNO is now available, STACK is not).
+- Restore the build cache prior to running bin/pre_compile.
+
 ## 102
 
 Buildpack code cleanup.
