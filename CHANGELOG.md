@@ -1,5 +1,25 @@
 # Python Buildpack Changelog
 
+# 113
+
+- Updates to Pipenv support.
+
+# 112
+
+Bugfix.
+
+- Fixed grep output bug.
+
+# 111
+
+Linting, bugfixes.
+
+# 110
+
+Update Default Python to 3.6.1, bugfixes.
+
+- Fixed automatic pip uninstall of dependencies removed from requirements.txt.
+
 # 109
 
 Fix output for collectstatic step.
