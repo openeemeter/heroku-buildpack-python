@@ -10,7 +10,7 @@ An IFTTT recipe is set up to alert us when the upstream repo has changes for mer
 
 [![Build Status](https://travis-ci.org/heroku/heroku-buildpack-python.svg?branch=master)](https://travis-ci.org/heroku/heroku-buildpack-python)
 
-This is the official [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) for Python apps, powered by [pip](https://pip.pypa.io/) and other excellent software.
+This is the official [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) for Python apps, powered by [Pipenv](http://docs.pipenv.org/en/latest/), [pip](https://pip.pypa.io/) and other excellent software.
 
 Recommended web frameworks include **Django** and **Flask**. The recommended webserver is **Gunicorn**. There are no restrictions around what software can be used (as long as it's pip-installable). Web processes must bind to `$PORT`, and only the HTTP protocol is permitted for incoming connections.
 
@@ -22,7 +22,7 @@ See it in Action
 Deploying a Python application couldn't be easier:
 
     $ ls
-    Procfile  requirements.txt  web.py
+    Pipfile		Procfile	web.py
 
     $ heroku create --buildpack heroku/python
 
@@ -30,16 +30,14 @@ Deploying a Python application couldn't be easier:
     ...
     -----> Python app detected
     -----> Installing python-3.6.2
-         $ pip install -r requirements.txt
-           Collecting requests (from -r requirements.txt (line 1))
-             Downloading requests-2.12.4-py2.py3-none-any.whl (576KB)
-           Installing collected packages: requests
-           Successfully installed requests-2.12.4
-
+    -----> Installing pip
+    -----> Installing requirements with latest pipenv...
+           ...
+           Installing dependencies from Pipfile...
     -----> Discovering process types
            Procfile declares types -> (none)
 
-A `requirements.txt` file must be present at the root of your application's repository.
+A `Pipfile` or `requirements.txt` must be present at the root of your application's repository.
 
 You can also specify the latest production release of this buildpack for upcoming builds of an existing application:
 
