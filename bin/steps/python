@@ -14,17 +14,30 @@ if [[ $PYTHON_VERSION =~ ^python-2 ]]; then
     echo "       Learn More: https://devcenter.heroku.com/articles/python-runtimes"
   fi
 else
-  if [[ "$PYTHON_VERSION" != "$LATEST_3" ]]; then
-    puts-warn "The latest version of Python 3 is $LATEST_3 (you are using $PYTHON_VERSION, which is unsupported)."
-    puts-warn "We recommend upgrading by specifying the latest version ($LATEST_3)."
+  if [[ $PYTHON_VERSION =~ ^python-3.7 ]] && [[ "$PYTHON_VERSION" != "$LATEST_37" ]]; then
+    puts-warn "The latest version of Python 3.7 is $LATEST_37 (you are using $PYTHON_VERSION, which is unsupported)."
+    puts-warn "We recommend upgrading by specifying the latest version ($LATEST_37)."
     echo "       Learn More: https://devcenter.heroku.com/articles/python-runtimes"
+  else
+    if [[ "$PYTHON_VERSION" != "$LATEST_36" ]]; then
+      puts-warn "The latest version of Python 3.6 is $LATEST_36 (you are using $PYTHON_VERSION, which is unsupported)."
+      puts-warn "We recommend upgrading by specifying the latest version ($LATEST_36)."
+      echo "       Learn More: https://devcenter.heroku.com/articles/python-runtimes"
+    fi
   fi
-
 fi
 
 if [[ "$STACK" != "$CACHED_PYTHON_STACK" ]]; then
     puts-step "Stack has changed from $CACHED_PYTHON_STACK to $STACK, clearing cache"
-    rm -fr .heroku/python-stack .heroku/python-version .heroku/python .heroku/vendor
+    rm -fr .heroku/python-stack .heroku/python-version .heroku/python .heroku/vendor .heroku/python .heroku/python-sqlite3-version
+fi
+
+# need to clear the cache for first time installing SQLite3,
+# since the version is changing and could lead to runtime errors
+# with compiled extensions.
+if [ -d .heroku/python ] && [ ! -f .heroku/python-sqlite3-version ] && python_sqlite3_check "$PYTHON_VERSION"; then
+  puts-step "Need to update SQLite3, clearing cache"
+  rm -fr .heroku/python-stack .heroku/python-version .heroku/python .heroku/vendor
 fi
 
 if [ -f .heroku/python-version ]; then
@@ -64,10 +77,11 @@ if [ "$FRESH_PYTHON" ] || [[ ! $(pip --version) == *$PIP_UPDATE* ]]; then
   puts-step "Installing pip"
 
   # Remove old installations.
-  rm -fr /app/.heroku/python/lib/python2.7/site-packages/pip-*
-  rm -fr /app/.heroku/python/lib/python2.7/site-packages/setuptools-*
+  rm -fr /app/.heroku/python/lib/python*/site-packages/pip-*
+  rm -fr /app/.heroku/python/lib/python*/site-packages/setuptools-*
 
-  /app/.heroku/python/bin/python "$ROOT_DIR/vendor/get-pip.py" &> /dev/null
+  /app/.heroku/python/bin/python "$ROOT_DIR/vendor/get-pip.py" pip=="$PIP_UPDATE" &> /dev/null
+  /app/.heroku/python/bin/pip install "$ROOT_DIR/vendor/setuptools-39.0.1-py2.py3-none-any.whl" &> /dev/null
 
 fi
 
