@@ -4,13 +4,15 @@ jobs:
   include:
     - stage: "Bash linting (shellcheck)"
       sudo: false
-      addons:
-        apt:
-          sources:
-          - debian-sid    # Grab shellcheck from the Debian repo (o_O)
-          packages:
-          - shellcheck
+      before_install:
+        - wget -c https://goo.gl/ZzKHFv -O - | tar -xvJ -C /tmp/
+        - PATH="/tmp/shellcheck-latest:$PATH"
       script: make check
+
+    - stage: "Stack Tests"
+      services: docker
+      env: STACK=heroku-18
+      script: ./tests.sh
 
     - stage: "Stack Tests"
       services: docker
