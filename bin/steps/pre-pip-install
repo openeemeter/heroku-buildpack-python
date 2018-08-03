@@ -1,4 +1,7 @@
-puts-step "pip install -r pre-requirements.txt"
+#!/usr/bin/env bash
+# OPENEE hack script
+
+puts-step "Installing pre-requirements with pip (OpenEE custom)"
 
 set +e
 /app/.heroku/python/bin/pip install -r $BUILD_DIR/pre-requirements.txt --exists-action=w --src=/app/.heroku/src --disable-pip-version-check --no-cache-dir 2>&1 | tee $WARNINGS_LOG | cleanup | indent
