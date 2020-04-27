@@ -2,7 +2,17 @@
 
 # Master
 
+- Docs: Fix explanation of runtime.txt generation when using pipenv
+- Bugfix: Correctly detect Python version when using a `python_version` of `3.8` in `Pipfile.lock`
+
 --------------------------------------------------------------------------------
+
+# 169 (2020-04-22)
+
+- Add a Hatchet test for python 3.8.2
+- Set Code Owners to @heroku/langauges
+- Bugfix: Caching on subsequent redeploys
+- Update tests to support latest version of Python
 
 # 168 (2020-04-06)
 
